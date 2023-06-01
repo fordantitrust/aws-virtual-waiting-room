@@ -1,39 +1,39 @@
-# AWS Virtual Waiting Room Developer Guide
+# Virtual Waiting Room on AWS Developer Guide
 
 
-## What is the AWS Virtual Waiting Room?
+## What is the Virtual Waiting Room on AWS?
 
-the AWS Virtual Waiting Room is a solution that, when deployed, can be used to temporarily divert and absorb web traffic from a site that not be prepared for large bursts of requests related to an event.
+The Virtual Waiting Room on AWS is a solution that, when deployed, can be used to temporarily divert and absorb web traffic from a site that not be prepared for large bursts of requests related to an event.
 
-The AWS Virtual Waiting Room is can be integrated with new or existing web sites in several different ways. The CloudFormation templates create a cloud infrastructure that can be used as-is, or customized for unique needs.
+The Virtual Waiting Room on AWS is can be integrated with new or existing web sites in several different ways. The CloudFormation templates create a cloud infrastructure that can be used as-is, or customized for unique needs.
 
-Refer to the implementation guide for details on installing an AWS Virtual Waiting Room stack in your AWS account.
+Refer to the implementation guide for details on installing an Virtual Waiting Room on AWS stack in your AWS account.
 
 ## Managing a Deployed Virtual Waiting Room
 
 ### CloudFormation stacks
 
-Adding, removing and updating the top-level subsystems of a AWS Virtual Waiting Room is performed using CloudFormation.
+Adding, removing and updating the top-level subsystems of a Virtual Waiting Room on AWS is performed using CloudFormation.
 
 |Template	|Description	|
 |---	|---	|
-|aws-virtual-waiting-room-api-gateway-cw-logs-role.template	|Use this template to add a default role ARN to API Gateway at the account-level for CloudWatch logging permissions	|
-|aws-virtual-waiting-room.template	|This is the core security, public and private REST APIs, storage configuration and logic for creating waiting room events	|
-|aws-virtual-waiting-room-openid.template	|Open ID identity provider for waiting room integration with authorization interfaces	|
-|aws-virtual-waiting-room-authorizers.template	|Lambda authorizer designed for waiting room-issued tokens and intended for protecting end-users' APIs	|
-|aws-virtual-waiting-room-sample-inlet-strategy.template	|Sample inlet strategies intended for use between a commerce/reservation site and the waiting room. Inlet strategies help encapsulate logic to determine when to allow more users into the target site.	|
-|aws-virtual-waiting-room-sample.template	|Minimal web and API Gateway configuration for  a waiting room and commerce site	|
+|virtual-waiting-room-on-aws-api-gateway-cw-logs-role.template	|Use this template to add a default role ARN to API Gateway at the account-level for CloudWatch logging permissions	|
+|virtual-waiting-room-on-aws.template	|This is the core security, public and private REST APIs, storage configuration and logic for creating waiting room events	|
+|virtual-waiting-room-on-aws-openid.template	|Open ID identity provider for waiting room integration with authorization interfaces	|
+|virtual-waiting-room-on-aws-authorizers.template	|Lambda authorizer designed for waiting room-issued tokens and intended for protecting end-users' APIs	|
+|virtual-waiting-room-on-aws-sample-inlet-strategy.template	|Sample inlet strategies intended for use between a commerce/reservation site and the waiting room. Inlet strategies help encapsulate logic to determine when to allow more users into the target site.	|
+|virtual-waiting-room-on-aws-sample.template	|Minimal web and API Gateway configuration for  a waiting room and commerce site	|
 
 Each template provides a layer of functionality for building Virtual Waiting Rooms and integrating it with a web site.
 
 
 ### Updating stack parameters
 
-Most of the AWS Virtual Waiting Room stacks include parameters for various settings used during configuration and while the solution is running. Any of the parameters can be changed and the stack updated in place using the existing templates.
+Most of the Virtual Waiting Room on AWS stacks include parameters for various settings used during configuration and while the solution is running. Any of the parameters can be changed and the stack updated in place using the existing templates.
 
 ### CloudWatch metrics and alarms
 
-The core stack for the AWS Virtual Waiting Room installs several CloudWatch Alarms. Navigate to the CloudWatch Console and select an alarm option on the left side of the page. The installed alarms include:
+The core stack for the Virtual Waiting Room on AWS installs several CloudWatch Alarms. Navigate to the CloudWatch Console and select an alarm option on the left side of the page. The installed alarms include:
 
 1. 4xx status codes for public and private APIs
 1. 5xx status codes for public and private APIs
@@ -155,7 +155,7 @@ These alarms will return to an OK state after one minute of no errors or throttl
 
 The purpose of a virtual waiting room is to absorb and reduce the traffic load on a web site that may not be prepared for large bursts of requests related to an event.
 
-The AWS Virtual Waiting Room is can be integrated with new or existing web sites. The CloudFormation templates create a cloud infrastructure designed for temporarily absorbing traffic away from a site. 
+The Virtual Waiting Room on AWS is can be integrated with new or existing web sites. The CloudFormation templates create a cloud infrastructure designed for temporarily absorbing traffic away from a site. 
 
 
 
@@ -199,7 +199,7 @@ The entire sample is contained by the single page. It will take the user through
 
 ## Extension Points
 
-The AWS Virtual Waiting Room is designed for extension through two mechanisms: EventBridge for uni-directional event notification and REST APIs for bi-directional communication.
+The Virtual Waiting Room on AWS is designed for extension through two mechanisms: EventBridge for uni-directional event notification and REST APIs for bi-directional communication.
 
 
 ## Events
@@ -211,15 +211,22 @@ Events emitted from the solution are:
 1. **token_generated**
     1. Detail:
         `{
-        "event_id": EVENT_ID,
-        "request_id":REQUEST_ID
+            "event_id": EVENT_ID,
+            "request_id":REQUEST_ID
         }`
 2. **session_updated**
     1. Detail:
         `{
-        "event_id": EVENT_ID,
-        "request_id": REQUEST_ID,
-        "status": STATUS_TEXT
+            "event_id": EVENT_ID,
+            "request_id": REQUEST_ID,
+            "status": STATUS_TEXT
+        }`
+2. **automatic_serving_counter_incr**
+    1. Detail:
+        `{
+            'previous_serving_counter_position': PREVIOUS_SERVING_COUNTER,
+            'increment_by': INCREMENT_VALUE,
+            'current_serving_counter_position': SERVING_COUNTER
         }`
 
 
@@ -231,7 +238,7 @@ This is an option setting in the main template.
 
 ## REST APIs
 
-There are two levels of REST APIs provided with the AWS Virtual Waiting Room. The Core APIs are the lowest layer of interaction with the solution. Other Lambda functions, EC2, and containers can act as extensions and call the Core APIs to build waiting rooms and control inlet traffic and react to events generated from the solution.
+There are two levels of REST APIs provided with the Virtual Waiting Room on AWS. The Core APIs are the lowest layer of interaction with the solution. Other Lambda functions, EC2, and containers can act as extensions and call the Core APIs to build waiting rooms and control inlet traffic and react to events generated from the solution.
 
 The Open ID Adapter provides a set of OIDC-compatible APIs that can be used with existing web hosting software that support OIDC identity providers, like AWS Elastic Load Balancers, WordPress, or as a federated identity provider for a service like Amazon Cognito.
 
@@ -326,7 +333,7 @@ The “Content-Type” header is always set to “application/json” with these
     8. Status codes:  
         200: Success  
         202: Request ID not processed yet  
-        404: Invalid event or request ID 
+        400: Invalid event or request ID 
 5. `/serving_num`
     1. Description: Returns the current serving position in the queue. Requests with an equal or lower position in the waiting room can request tokens from the API.
     2. Authorization: NONE
@@ -340,7 +347,7 @@ The “Content-Type” header is always set to “application/json” with these
         }`
     8. Status codes:  
         200: Success  
-        404: Invalid event ID
+        400: Invalid event ID
 6. `/waiting_num`
     1. Description: Returns the number users currently queued in the waiting room and have not been issued a token yet.
     2. Authorization: NONE
@@ -354,7 +361,24 @@ The “Content-Type” header is always set to “application/json” with these
         }`
     8. Status codes:  
         200: Success  
-        404: Invalid event ID
+        400: Invalid event ID
+7. /queue_pos_expiry
+    1. Description: Returns the remaining time in seconds before queue position expires
+    2. Authorization: NONE 
+    3. Method: GET 
+    4. Content-Type: `application/json`
+    5. Query parameters: `event_id, request_id`
+    6. Request body: NONE
+    7. Response body:
+        `{
+            "expires_in": INTEGER
+        }`
+    8. Status codes:  
+        200: Success  
+        400: Invalid event ID  
+        410: Queue position has expired
+
+
 
 ## Private REST APIs
 

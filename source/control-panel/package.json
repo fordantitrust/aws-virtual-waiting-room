@@ -1,29 +1,31 @@
 {
   "name": "control-panel",
+  "description": "This project is a sample control panel for managing an instance of Virtual Waiting Room on AWS",
+  "author": "Amazon Web Services (https://aws.amazon.com/solutions)",
   "version": "0.1.0",
   "private": true,
+  "license": "Apache-2.0",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "aws4-axios": "^2.4.3",
-    "axios": "^0.21.4",
+    "aws4fetch": "^1.0.13",
     "bootstrap": "^5.1.1",
-    "core-js": "^3.6.5",
+    "core-js": "^3.8.3",
     "lodash": "^4.17.21",
     "vue": "^3.0.0",
     "vue-timers": "^2.0.4"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0",
+    "@vue/babel-preset-app": "^5.0.8",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-eslint": "^5.0.8",
+    "@vue/cli-service": "^5.0.8",
+    "@vue/compiler-sfc": "^3.2.37",
+    "eslint": "^8.22.0",
+    "eslint-plugin-vue": "^9.3.0",
     "naive-ui": "^2.19.3",
     "vfonts": "^0.1.0"
   },
@@ -33,12 +35,10 @@
       "node": true
     },
     "extends": [
-      "plugin:vue/vue3-essential",
+      "plugin:vue/base",
       "eslint:recommended"
     ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
+    "parserOptions": {},
     "rules": {}
   },
   "browserslist": [
