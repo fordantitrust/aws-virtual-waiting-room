@@ -1,8 +1,12 @@
 {
   "name": "control-panel",
   "description": "This project is a sample control panel for managing an instance of Virtual Waiting Room on AWS",
-  "author": "Amazon Web Services (https://aws.amazon.com/solutions)",
-  "version": "0.1.0",
+  "author": {
+    "name": "Amazon Web Services",
+    "url": "https://aws.amazon.com/solutions",
+    "organization": true
+  },
+  "version": "1.1.15",
   "private": true,
   "license": "Apache-2.0",
   "scripts": {
@@ -15,15 +19,17 @@
     "bootstrap": "^5.1.1",
     "core-js": "^3.8.3",
     "lodash": "^4.17.21",
-    "vue": "^3.0.0",
-    "vue-timers": "^2.0.4"
+    "vue": "^3.3.7",
+    "vue-timers": "^2.0.4",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.23.2",
     "@vue/babel-preset-app": "^5.0.8",
-    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/compiler-sfc": "^3.2.37",
+    "@vue/compiler-sfc": "^3.3.7",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
     "naive-ui": "^2.19.3",
@@ -40,6 +46,14 @@
     ],
     "parserOptions": {},
     "rules": {}
+  },
+  "overrides": {
+    "cross-spawn": "^7.0.6",
+    "postcss": "^8.4.31",
+    "webpack-dev-server": "^5.2.1",
+    "semver": "^7.5.2",
+    "word-wrap": "^1.2.4",
+    "send": "0.19.0"
   },
   "browserslist": [
     "> 1%",

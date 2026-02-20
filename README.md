@@ -1,3 +1,5 @@
+⚠️🚨⚠️ Virtual Waiting Room on AWS has been deprecated and will not be receiving any additional features or updates. We encourage customers to explore enterprise-supported alternatives in [AWS Marketplace](https://aws.amazon.com/marketplace/) (additional fees may apply), or implement their own solution using guidance from our [Visitor Prioritization on e-Commerce Websites with CloudFront and CloudFront Functions](https://aws.amazon.com/blogs/networking-and-content-delivery/visitor-prioritization-on-e-commerce-websites-with-cloudfront-and-cloudfront-functions/) blog post. ⚠️🚨⚠️
+
 **[🚀 Solution Landing Page](https://aws.amazon.com/solutions/implementations/virtual-waiting-room-on-aws/)** | **[📜 Solution Implementation Guide](https://docs.aws.amazon.com/solutions/latest/virtual-waiting-room-on-aws/welcome.html)** | **[🚧 Feature request](https://github.com/aws-solutions/virtual-waiting-room-on-aws/issues/new?assignees=&labels=feature-request%2C+enhancement&template=feature_request.md&title=)** | **[🐛 Bug Report](https://github.com/aws-solutions/virtual-waiting-room-on-aws/issues/new?assignees=&labels=bug%2C+triage&template=bug_report.md&title=)**
 
 Note: If you want to use the solution without building from source, navigate to Solution Landing Page
@@ -11,6 +13,7 @@ Site wrapper to absorb and control user traffic flowing into smaller web sites.
 [//]: # (Add any prerequisites for customization steps. e.g. Prerequisite: Node.js>10)
 
 * Install/update to Python 3.x
+* Install/update to Poetry 2.0.1
 * Install the AWS Command Line Interface (CLI)
 * Create a Python [virtual environment](https://docs.python.org/3.8/library/venv.html) using [requirements.txt](deployment/requirements.txt) and activate it
 * Configure the bucket name of your target Amazon S3 distribution bucket
@@ -28,8 +31,9 @@ _Note:_ You would have to create an S3 bucket with the prefix '<MY-BUCKET-NAME>-
 * Now build the distributable:
 ```
 cd deployment
+poetry install
 chmod +x ./build-s3-dist.sh 
-./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION 
+poetry run ./build-s3-dist.sh $DIST_OUTPUT_BUCKET $SOLUTION_NAME $VERSION 
 ```
 
 * Deploy the distributable to an Amazon S3 bucket in your account. The head-bucket command verifies that your account owns the bucket. _Note:_ you must have the AWS Command Line Interface installed.
@@ -46,8 +50,7 @@ aws s3 sync regional-s3-assets/ s3://<MY-BUCKET-NAME>-<AWS-REGION>/$SOLUTION_NAM
 * Install the common package into the virtual envronment before running
 ```
 cd ./deployment
-pip install ./pkg/virtual_waiting_room_on_aws_common-1.1.1-py3-none-any.whl
-chmod +x ./run-unit-tests.sh  
+chmod +x ./run-unit-tests.sh 
 ./run-unit-tests.sh 
 ```
 
@@ -95,12 +98,17 @@ chmod +x ./run-unit-tests.sh
 
 ***
 
+## Collection of operational metrics
 
+This solution collects anonymized operational metrics to help AWS improve the
+quality of features of the solution. For more information, including how to disable
+this capability, please see the [implementation guide](https://docs.aws.amazon.com/solutions/latest/virtual-waiting-room-on-aws/collection-of-operational-metrics.html).
+
+## External Contributors
+
+[@kght6123](https://github.com/kght6123) for [#232](https://github.com/aws-solutions/virtual-waiting-room-on-aws/pull/232)
+
+
+## License
 Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
-Licensed under the Apache License Version 2.0 (the "License"). You may not use this file except in compliance with the License. A copy of the License is located at
-
-    http://www.apache.org/licenses/
-
-or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and limitations under the License.
-
+SPDX-License-Identifier: Apache-2.0

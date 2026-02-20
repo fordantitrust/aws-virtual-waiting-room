@@ -75,6 +75,13 @@
                         }
                     ]
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "PrivateApiGwRole": {
@@ -117,6 +124,13 @@
                                 "sts:AssumeRole"
                             ]
                         }
+                    ]
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
                     ]
                 }
             }
@@ -672,12 +686,20 @@
                 }
             }
         },
+        "NATRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "WaitingRoomVpc"
+                }
+            }
+        },
         "PublicRoute": {
             "Type": "AWS::EC2::Route",
             "DependsOn": "VpcGatewayAttachment",
             "Properties": {
                 "RouteTableId": {
-                    "Ref": "RouteTable"
+                    "Ref": "NATRouteTable"
                 },
                 "DestinationCidrBlock": "0.0.0.0/0",
                 "GatewayId": {
@@ -722,6 +744,64 @@
                             ]
                         }
                     ]
+                }
+            }
+        },
+        "NATSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "WaitingRoomVpc"
+                },
+                "CidrBlock": "10.0.0.0/28",
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "0",
+                        {
+                            "Fn::GetAtt": [
+                                "IntersectAZCustomResource",
+                                "intersect_az"
+                            ]
+                        }
+                    ]
+                }
+            }
+
+        },
+        "NATGateway" : {
+           "Type" : "AWS::EC2::NatGateway",
+           "Properties" : {
+              "AllocationId" : {
+                  "Fn::GetAtt" : ["NATGatewayEIP", "AllocationId"]
+              },
+              "SubnetId" : {
+                  "Ref" : "NATSubnet"
+              }
+             }
+        },
+        "NATGatewayEIP" : {
+           "Type" : "AWS::EC2::EIP",
+           "Properties" : {
+              "Domain" : "vpc"
+           }
+        },
+        "NATGatewayRoute" : {
+           "DependsOn": [ "NATGateway" ],
+           "Type" : "AWS::EC2::Route",
+           "Properties" : {
+              "RouteTableId" : { "Ref" : "RouteTable" },
+              "DestinationCidrBlock" : "0.0.0.0/0",
+              "NatGatewayId" : { "Ref" : "NATGateway" }
+           }
+        },
+        "NATRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "NATSubnet"
+                },
+                "RouteTableId": {
+                    "Ref": "NATRouteTable"
                 }
             }
         },
@@ -815,6 +895,7 @@
         },
         "RedisReplicationGroup": {
             "Type": "AWS::ElastiCache::ReplicationGroup",
+            "DependsOn": "RedisAuth",
             "Properties": {
                 "AtRestEncryptionEnabled": true,
                 "AuthToken": {"Fn::Sub": "{{resolve:secretsmanager:${AWS::StackName}/redis-auth:SecretString}}"},
@@ -844,7 +925,7 @@
             "Type": "AWS::Lambda::LayerVersion",
             "Properties": {
                 "CompatibleRuntimes": [
-                    "python3.8"
+                    "python3.12"
                 ],
                 "Content": {
                     "S3Bucket": {
@@ -891,7 +972,7 @@
             "Type": "AWS::Lambda::LayerVersion",
             "Properties": {
                 "CompatibleRuntimes": [
-                    "python3.8"
+                    "python3.12"
                 ],
                 "Content": {
                     "S3Bucket": {
@@ -1019,7 +1100,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -1154,7 +1235,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -1275,7 +1356,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -1382,7 +1463,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -1504,7 +1585,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -1641,7 +1722,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -1794,7 +1875,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -1924,7 +2005,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2063,7 +2144,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2202,7 +2283,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2350,7 +2431,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2471,7 +2552,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -2599,7 +2680,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2741,7 +2822,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2872,6 +2953,9 @@
                         },
                         "STACK_NAME" : {
                             "Ref": "AWS::StackName"
+                        },
+                        "CLOUDFRONT_DISTRIBUTION_ID" : {
+                            "Ref": "PublicApiCloudFront"
                         }
                     }
                 },
@@ -2888,7 +2972,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 300,
                 "VpcConfig": {
                     "SecurityGroupIds": [
@@ -2983,6 +3067,13 @@
                         }
                     ]
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "QueuePositionRole": {
@@ -3019,6 +3110,13 @@
                                 "sts:AssumeRole"
                             ]
                         }
+                    ]
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
                     ]
                 }
             }
@@ -3076,6 +3174,13 @@
                         }
                     ]
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "GenerateEventsRole": {
@@ -3125,6 +3230,13 @@
                         }
                     ]
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "UpdateSessionRole": {
@@ -3161,6 +3273,13 @@
                                 "sts:AssumeRole"
                             ]
                         }
+                    ]
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
                     ]
                 }
             }
@@ -3202,6 +3321,13 @@
                         }
                     ]
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "GetTokenRole": {
@@ -3239,6 +3365,13 @@
                                 "sts:AssumeRole"
                             ]
                         }
+                    ]
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
                     ]
                 }
             }
@@ -3288,6 +3421,30 @@
                     {"Ref": "UpdateDistributionRole"},
                     {"Ref": "SecretsManagerReadRole"},
                     {"Ref": "InitializeStateRole"}
+                ]
+            }
+        },
+        "CfnInvalidationPolicy": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "CfnInvalidationPolicy",
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Sid": "CfnInvalidationPolicy",
+                            "Effect": "Allow",
+                            "Action": [
+                                "cloudfront:CreateInvalidation"
+                            ],
+                            "Resource": {
+                                "Fn::Sub": "arn:aws:cloudfront::${AWS::AccountId}:distribution/${PublicApiCloudFront}"
+                            }
+                        }
+                    ]
+                },
+                "Roles": [
+                    {"Ref": "GetTokenRole"}
                 ]
             }
         },
@@ -3633,6 +3790,13 @@
                 "SSESpecification": {
                     "SSEEnabled": true
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "DYNAMODB_TABLE_ENCRYPTED_KMS"
+                    ]
+                }
             }
         },
         "QueuePositionEntryTimeTable": {
@@ -3675,6 +3839,13 @@
                 "SSESpecification": {
                     "SSEEnabled": true
                 }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "DYNAMODB_TABLE_ENCRYPTED_KMS"
+                    ]
+                }
             }
         },
         "ServingCounterIssuedAtTable": {
@@ -3706,6 +3877,13 @@
                 },
                 "SSESpecification": {
                     "SSEEnabled": true
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "DYNAMODB_TABLE_ENCRYPTED_KMS"
+                    ]
                 }
             }
         },
@@ -3773,7 +3951,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -3861,7 +4039,12 @@
                             "id": "W11",
                             "reason": "GetRandomPassword applies to all resources per IAM."
                         }
-                    ]}
+                    ]},
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "IntersectAZFunction": {
@@ -3923,7 +4106,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -3948,7 +4131,7 @@
         "StringClipLambdaCustomResource": {
             "Type": "AWS::Lambda::Function",
             "Properties": {
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Role": {
                     "Fn::GetAtt": ["StringClipLambdaRole", "Arn"]
                 },
@@ -4016,6 +4199,13 @@
                         }
                     }
                 ]
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "InvokeShortenStackNameLambda": {
@@ -4106,6 +4296,11 @@
                             "reason": "By default DescribeVPCEndpointServices applies to all resources per IAM."
                         }
                     ]
+                },
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
                 }
             }
         },
@@ -4175,7 +4370,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -4279,6 +4474,13 @@
                                 "sts:AssumeRole"
                             ]
                         }
+                    ]
+                }
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
                     ]
                 }
             }
@@ -4480,7 +4682,7 @@
                         "Arn"
                     ]
                 },
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Timeout": 30
             },
             "Metadata": {
@@ -4550,6 +4752,13 @@
                         }
                     }
                 ]
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
+                }
             }
         },
         "PublicApiCloudFront": {
@@ -5043,7 +5252,14 @@
                 },
                 "KmsKeyId" : "alias/aws/secretsmanager",
                 "Name": {"Fn::Sub": "${AWS::StackName}/redis-auth"}
-            }          
+            },
+            "Metadata": {
+                "guard": {
+                    "SuppressedRules": [
+                        "SECRETSMANAGER_USING_CMK"
+                    ]
+                }
+            }
         },
         "4XXErrorPrivateApiAlarm" : {
             "Type" : "AWS::CloudWatch::Alarm",

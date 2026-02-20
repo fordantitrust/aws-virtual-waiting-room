@@ -1,5 +1,5 @@
 {
-    "Description": "Virtual Waiting Room on AWS OpenID Adapter %%VERSION%%",
+    "Description": "(SO0166) Virtual Waiting Room on AWS OpenID Adapter %%VERSION%%",
     "Parameters": {
         "PublicAPIEndpoint": {
             "Description": "Public endpoint URL for the virtual waiting room APIs",
@@ -320,6 +320,11 @@
                             "reason": "Resource * is required for the GetRandomPassword action."
                         }
                     ]
+                },
+                "guard": {
+                    "SuppressedRules": [
+                        "IAM_NO_INLINE_POLICY_CHECK"
+                    ]
                 }
             }
         },
@@ -420,7 +425,7 @@
         "GenerateClientSecretFunction": {
             "Type": "AWS::Serverless::Function",
             "Properties": {
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Handler": "generate_client_secret.handler",
                 "CodeUri": {
                     "Bucket": {
@@ -509,7 +514,7 @@
         "GenerateRedirectURIsSecretFunction": {
             "Type": "AWS::Serverless::Function",
             "Properties": {
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Handler": "generate_redirect_uris_secret.handler",
                 "CodeUri": {
                     "Bucket": {
@@ -598,7 +603,7 @@
         "BucketLoaderFunction": {
             "Type": "AWS::Serverless::Function",
             "Properties": {
-                "Runtime": "python3.8",
+                "Runtime": "python3.12",
                 "Handler": "cfn_bucket_loader.handler",
                 "CodeUri": {
                     "Bucket": {

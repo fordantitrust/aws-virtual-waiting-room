@@ -1,3 +1,6 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 """
 This module sets up the metadata for the waiting room common library.
 """
@@ -9,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="virtual-waiting-room-on-aws-common",
-    version="1.1.1",
+    version="1.1.12",
     author="AWS Solutions PDX",
     author_email="aws-solutions-pdx@amazon.com",
     description="Common Python modules for Virtual Waiting Room on AWS",
@@ -26,7 +29,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     packages=setuptools.find_packages(where="."),
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=[
         'bleach~=4.1.0',
     ])

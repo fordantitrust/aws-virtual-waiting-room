@@ -1,7 +1,5 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2
+FROM public.ecr.aws/lambda/python:3.12
 CMD bash
-RUN mkdir -p site-packages/
-RUN amazon-linux-extras enable python3.8
-RUN yum install -y python3.8
-RUN pip3.8 install pip --upgrade
-RUN pip install -t site-packages/ jwcrypto
+WORKDIR /site-packages
+RUN pip install --upgrade pip
+RUN pip install -t . jwcrypto==1.5.6

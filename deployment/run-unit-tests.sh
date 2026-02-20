@@ -7,11 +7,21 @@
 # ./run-unit-tests.sh
 #
 
+
+# configure the environment
+VENV=$(mktemp -d) && echo "$VENV"
+python3 -m venv "$VENV"
+source "$VENV"/bin/activate
+
+cd ./../deployment
+
+poetry install
 # Get reference for all important folders
 template_dir="$PWD"
 echo "template_dir" $template_dir
 source_dir="$template_dir/../source"
 echo "source_dir" $source_dir
+
 
 echo "------------------------------------------------------------------------------"
 echo " Test core API lambda functions"

@@ -40,12 +40,12 @@ while getopts ':h' OPTION; do
     h)
       echo
       echo "script usage: $(basename $0) DIST_OUTPUT_BUCKET SOLUTION_NAME VERSION"
-      echo "example usage: ./$(basename $0) mybucket virtual-waiting-room-on-aws v1.1.0"
+      echo "example usage: ./$(basename $0) mybucket virtual-waiting-room-on-aws v1.1.12"
       echo
       echo "If no arguments are passed in, the following default values are used:"
       echo "DIST_OUTPUT_BUCKET=rodeolabz"
       echo "SOLUTION_NAME=virtual-waiting-room-on-aws"
-      echo "VERSION=v1.1.0"
+      echo "VERSION=v1.1.12"
       echo
       echo "You may export export these variables in your environment and call the script using those variables:"
       echo "./$(basename $0) \$DIST_OUTPUT_BUCKET \$SOLUTION_NAME \$VERSION"
@@ -79,8 +79,8 @@ fi
 
 if [ -z "$3" ]
   then
-    echo "Setting default version to v1.1.0"
-    VERSION='v1.1.0'
+    echo "Setting default version to v1.1.12"
+    VERSION='v1.1.12'
 fi
 
 template_dir="$PWD" # /deployment
@@ -88,6 +88,7 @@ template_dist_dir="$template_dir/global-s3-assets"
 build_dist_dir="$template_dir/regional-s3-assets"
 pkg_dir="$template_dir/pkg"
 source_dir="$template_dir/../source"
+common_version=1.1.12
 
 echo "------------------------------------------------------------------------------"
 echo "[Init] Clean old dist, node_modules and bower_components folders"
@@ -110,14 +111,14 @@ echo "--------------------------------------------------------------------------
 echo "virtual-waiting-room-on-aws-common package"
 echo "------------------------------------------------------------------------------"
 cd $source_dir/shared/virtual-waiting-room-on-aws-common
-python -m build -o $pkg_dir
+python3 -m build -o $pkg_dir
 
 
 echo "------------------------------------------------------------------------------"
 echo "Redis layer"
 echo "------------------------------------------------------------------------------"
 # build the redis layer Zip file
-layer_dir=$source_dir/python/lib/python3.8/site-packages/
+layer_dir=$source_dir/python/lib/python3.12/site-packages/
 mkdir -p $layer_dir
 cd $source_dir
 rm -rf error.txt
@@ -152,6 +153,7 @@ echo Custom Resources
 cd $source_dir/core-api/custom_resources
 rm -rf error.txt package
 mkdir package
+poetry export -f requirements.txt --output requirements.txt --without-hashes
 pip install --upgrade --force-reinstall --target ./package -r requirements.txt 2> error.txt
 RETVAL=$?
 if [ "$RETVAL" -ne "0" ]; then
@@ -170,7 +172,7 @@ echo Lambda Functions
 cd $source_dir/core-api/lambda_functions
 rm -rf error.txt package
 mkdir package
-pip install $pkg_dir/virtual_waiting_room_on_aws_common-1.1.1-py3-none-any.whl --target ./package 2> error.txt
+pip install $pkg_dir/virtual_waiting_room_on_aws_common-$common_version-py3-none-any.whl --target ./package 2> error.txt
 RETVAL=$?
 if [ "$RETVAL" -ne "0" ]; then
     echo "ERROR: System package installation failed."
@@ -192,6 +194,7 @@ cd $source_dir/openid-waitingroom/custom_resources
 rm -rf error.txt package tmp
 mkdir -p package
 mkdir -p tmp
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
 pip install --upgrade --force-reinstall --target ./package -r requirements.txt 2> error.txt
 RETVAL=$?
 if [ "$RETVAL" -ne "0" ]; then
@@ -207,8 +210,10 @@ zip -g tmp/virtual-waiting-room-on-aws-openid-custom-resources.zip generate_clie
 cd $source_dir/shared/custom_resources
 zip -g $source_dir/openid-waitingroom/custom_resources/tmp/virtual-waiting-room-on-aws-openid-custom-resources.zip cfn_bucket_loader.py
 # add Open ID web content to custom resource zip
-cd $source_dir/openid-waitingroom
-zip -g $source_dir/openid-waitingroom/custom_resources/tmp/virtual-waiting-room-on-aws-openid-custom-resources.zip www/*
+cd $source_dir/openid-waitingroom/www
+npm install
+cd .. 
+zip -gr $source_dir/openid-waitingroom/custom_resources/tmp/virtual-waiting-room-on-aws-openid-custom-resources.zip www/* -x "www/node_modules/*"
 
 cd $source_dir/openid-waitingroom/custom_resources
 # copy the zip file to the build directory
@@ -221,7 +226,9 @@ mkdir -p tmp
 # install the common package into vendor
 rm -rf vendor
 mkdir -p vendor
-pip install $pkg_dir/virtual_waiting_room_on_aws_common-1.1.1-py3-none-any.whl --target vendor
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
+pip install --upgrade --force-reinstall --target ./vendor -r requirements.txt 2> error.txt
+pip install $pkg_dir/virtual_waiting_room_on_aws_common-$common_version-py3-none-any.whl --target vendor
 # generate the template and zip
 chalice package --merge-template merge_template.json tmp/
 RETVAL=$?
@@ -246,7 +253,9 @@ mkdir -p tmp/
 # install the common package into vendor
 rm -rf vendor
 mkdir -p vendor
-pip install $pkg_dir/virtual_waiting_room_on_aws_common-1.1.1-py3-none-any.whl --target vendor
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
+pip install --upgrade --force-reinstall --target ./vendor -r requirements.txt 2> error.txt
+pip install $pkg_dir/virtual_waiting_room_on_aws_common-$common_version-py3-none-any.whl --target vendor
 # generate the template and zip
 chalice package --merge-template merge_template.json tmp/
 RETVAL=$?
@@ -269,6 +278,7 @@ cd $source_dir/core-api-authorizers-sample/custom_resources
 rm -rf error.txt package tmp
 mkdir -p package
 mkdir -p tmp
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
 pip install --upgrade --force-reinstall --target ./package -r requirements.txt 2> error.txt
 RETVAL=$?
 if [ "$RETVAL" -ne "0" ]; then
@@ -312,6 +322,8 @@ cp virtual-waiting-room-on-aws-sample-custom-resources.zip $build_dist_dir/virtu
 cd $source_dir/core-api-authorizers-sample/chalice
 rm -rf tmp
 mkdir -p tmp/
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
+pip install --upgrade --force-reinstall --target ./tmp -r requirements.txt 2> error.txt
 chalice package --merge-template merge_template.json tmp/
 RETVAL=$?
 if [ "$RETVAL" != "0" ]; then
@@ -331,6 +343,7 @@ echo "--------------------------------------------------------------------------
 cd $source_dir/sample-inlet-strategies
 rm -rf error.txt package
 mkdir -p package
+poetry export  -f requirements.txt --output requirements.txt --without-hashes
 pip install --upgrade --force-reinstall --target ./package -r requirements.txt 2> error.txt
 RETVAL=$?
 if [ "$RETVAL" -ne "0" ]; then

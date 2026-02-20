@@ -21,3 +21,10 @@ node_modules/
 coverage.lcov
 coverage.xml*
 .coverage
+.idea
+build
+docs/behavioral-views.drawio
+docs/deployment-view.drawio
+
+# cdxgen output
+bom.json
